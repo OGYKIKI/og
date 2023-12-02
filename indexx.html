@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poster Maker</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #fff;
+            overflow: hidden;
+            cursor: none; /* Hide the default cursor */
+            position: relative;
+        }
+
+        #customCursor {
+            font-size: 20px;
+            color: red;
+            position: absolute;
+            pointer-events: none;
+            transition: transform 0.1s ease-out;
+            z-index: 2; /* Set a higher z-index to ensure it's in front of photos */
+        }
+
+        #customCursor:hover {
+            transform: scale(1.5); /* Increase size on hover */
+        }
+
+        #posterText {
+            font-size: 70px;
+            color: red;
+            z-index: 1;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .image-container {
+            position: absolute;
+            z-index: 1; /* Set a lower z-index for the photos */
+        }
+
+        .image-container img {
+            max-width: 100%;
+            max-height: 100%;
+            transition: opacity 0s;
+        }
+
+        .image-container:hover img {
+            opacity: 1;
+        }
+
+        .invert-color {
+            filter: invert(100%);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0s;
+        }
+
+        .image-container:hover + .invert-color {
+            opacity: 1;
+        }
+
+        .moving-banner {
+            font-size: 30px;
+            color: red;
+            position: absolute;
+            bottom: 10px;
+            white-space: nowrap;
+            animation: moveBanner 20s linear infinite;
+            z-index: 3; /* Set a higher z-index to ensure it's in front of photos and cursor */
+        }
+
+        @keyframes moveBanner {
+            from {
+                right: 100%;
+            }
+            to {
+                right: -100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div id="posterText">I MAKE POSTERS</div>
+<div id="customCursor">CLICK_ME</div>
+<div class="moving-banner">FOR ORDERS CONTACT OUR STUDIO VIA PHONE: +9725226691948 OR VIA EMAIL: ORI.GR64@GMAIL.COM</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const customCursor = document.getElementById('customCursor');
+        const movingBanner = document.querySelector('.moving-banner');
+
+        document.body.addEventListener('mousemove', function (event) {
+            // Move the custom cursor with the mouse
+            customCursor.style.left = event.clientX + 'px';
+            customCursor.style.top = event.clientY + 'px';
+
+            // Stop the moving banner when the cursor is over it
+            const bannerRect = movingBanner.getBoundingClientRect();
+            if (
+                event.clientX >= bannerRect.left &&
+                event.clientX <= bannerRect.right &&
+                event.clientY >= bannerRect.top &&
+                event.clientY <= bannerRect.bottom
+            ) {
+                movingBanner.style.animationPlayState = 'paused';
+            } else {
+                movingBanner.style.animationPlayState = 'running';
+            }
+        });
+
+        document.body.addEventListener('click', function (event) {
+            // Change text to "THANK_YOU" on click
+            customCursor.innerText = 'THANK_YOU';
+
+            // Create image container
+            const imageContainer = document.createElement('div');
+            imageContainer.className = 'image-container';
+            imageContainer.style.left = event.clientX + 'px';
+            imageContainer.style.top = event.clientY + 'px';
+
+            // Create image element
+            const image = document.createElement('img');
+            // Set the image source to your desired image path
+            image.src = getRandomImageSource();
+            setRandomSize(image);
+            imageContainer.appendChild(image);
+
+            // Create invert color overlay
+            const invertColor = document.createElement('div');
+            invertColor.className = 'invert-color';
+            imageContainer.appendChild(invertColor);
+
+            // Append image container to the body
+            document.body.appendChild(imageContainer);
+
+            // Reset text to "CLICK_ME" after 0.5 seconds
+            setTimeout(function () {
+                customCursor.innerText = 'CLICK_ME';
+            }, 500);
+        });
+
+        // Function to get a random image source
+        function getRandomImageSource() {
+            const imageSources = [
+                'https://static.wixstatic.com/media/142389_c7fa7005430646ffab8d46727bfeeef3~mv2.jpg',
+                'https://static.wixstatic.com/media/142389_5b2c75b774ec4648a1d6a514a6c86361~mv2.jpg',
+                'https://static.wixstatic.com/media/142389_b13e76c3e14948308db1da3ecfeaa0f6~mv2.jpg',
+                'https://static.wixstatic.com/media/142389_1c0ff509487d4677a73727c06ed4ff90~mv2.jpg',
+                'https://static.wixstatic.com/media/142389_4662103c93a34150b8e848a7698a48fe~mv2.jpg',
+                'https://static.wixstatic.com/media/142389_2e0c2ec4c276438594f23339d48858e8~mv2.jpg',
+                'https://static.wixstatic.com/media/142389_7d23dddef38f45fa935a7d4c770c49a7~mv2.jpg',
+                'https://static.wixstatic.com/media/142389_9093c97c4bbf4abaac88805d0ebd3d02~mv2.jpg',
+                'https://static.wixstatic.com/media/142389_c463c56199284ce4bf4cbdf614cc4529~mv2.jpg',
+                // Add more image sources here
+            ];
+            return imageSources[Math.floor(Math.random() * imageSources.length)];
+        }
+
+        // Function to set a random size while maintaining the aspect ratio
+        function setRandomSize(image) {
+            const maxSize = 300;
+            const minSize = 200;
+            const randomSize = Math.floor(Math.random() * (maxSize - minSize + 1)) + minSize;
+
+            // Set width and calculate height to maintain aspect ratio
+            const aspectRatio = image.naturalWidth / image.naturalHeight;
+            const calculatedHeight = randomSize / aspectRatio;
+            image.style.width = randomSize + 'px';
+            image.style.height = calculatedHeight + 'px';
+        }
+    });
+</script>
+
+</body>
+</html>
+
